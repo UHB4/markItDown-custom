@@ -1,0 +1,79 @@
+[tool.poetry]
+name = "markitdown"
+version = "0.1.0" 
+description = "Utility tool for converting various files to Markdown"
+authors = ["UHB <gusqls1658@minisoft.co.kr>"]
+readme = "README.md"
+license = "MIT"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13", 
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+# URLs 항목 수정 - Poetry 형식에 맞게
+homepage = "https://github.com/microsoft/markitdown"
+repository = "https://github.com/microsoft/markitdown"
+documentation = "https://github.com/microsoft/markitdown#readme"
+
+[tool.poetry.urls]
+"Issues" = "https://github.com/microsoft/markitdown/issues"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.14"  
+beautifulsoup4 = "*"
+requests = "*"
+markdownify = "*"
+magika = "~0.6.1"
+charset-normalizer = "*"
+python-pptx = "*"
+mammoth = "*"
+pandas = "*"
+openpyxl = "*"
+xlrd = "*"
+lxml = "*"
+pdfminer-six = "*"
+olefile = "*"
+pydub = "*"
+speechrecognition = "*"
+youtube-transcript-api = "*" 
+azure-ai-documentintelligence = "*"
+azure-identity = "*"
+
+[tool.poetry.group.dev.dependencies]
+mypy = ">=1.0.0"
+openai = "*"
+pytest = "*"
+pytest-cov = "*"
+
+# [tool.poetry.extras] 섹션은 전체 삭제 또는 주석 처리
+
+[tool.poetry.scripts]
+markitdown = "markitdown.__main__:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+source_pkgs = ["markitdown", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/markitdown/__about__.py",
+]
+
+[tool.coverage.paths]
+markitdown = ["src/markitdown", "*/markitdown/src/markitdown"]
+tests = ["tests", "*/markitdown/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
