@@ -43,6 +43,7 @@ speechrecognition = "*"
 youtube-transcript-api = "*" 
 azure-ai-documentintelligence = "*"
 azure-identity = "*"
+fitz = "^0.0.1.dev2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = ">=1.0.0"

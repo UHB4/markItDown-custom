@@ -4,6 +4,7 @@ import os
 import io
 import re
 import html
+import uuid
 
 from typing import BinaryIO, Any
 from operator import attrgetter
@@ -62,6 +63,8 @@ class PptxConverter(DocumentConverter):
         self,
         file_stream: BinaryIO,
         stream_info: StreamInfo,
+        image_save_dir: str = None,
+        base_url: str = None,
         **kwargs: Any,  # Options to pass to the converter
     ) -> DocumentConverterResult:
         # Check the dependencies
@@ -77,6 +80,11 @@ class PptxConverter(DocumentConverter):
             ].with_traceback(  # type: ignore[union-attr]
                 _dependency_exc_info[2]
             )
+        # 기본 이미지 저장 경로 (지정 되지 않은 경우)
+        if image_save_dir is None:
+            image_save_dir = os.path.join(os.getcwd(), "pptx-images")
+
+        os.makedirs(image_save_dir, exist_ok=True)
 
         # Perform the conversion
         presentation = pptx.Presentation(file_stream)
@@ -140,16 +148,35 @@ class PptxConverter(DocumentConverter):
                     alt_text = re.sub(r"[\r\n\[\]]", " ", alt_text)
                     alt_text = re.sub(r"\s+", " ", alt_text).strip()
 
+                    use_data_uris = kwargs.get("keep_data_uris", False)
                     # If keep_data_uris is True, use base64 encoding for images
-                    if kwargs.get("keep_data_uris", False):
+                    if not use_data_uris and image_save_dir:
+                        blob = shape.image.blob
+                        content_type = shape.image.content_type or "image/png"
+                        file_ext = (
+                            "." + (content_type.split("/")[-1])
+                            if content_type
+                            else ".png"
+                        )
+                        file_name = f"pptx-image-{uuid.uuid4().hex[:8]}{file_ext}"
+                        file_path = os.path.join(image_save_dir, file_name)
+
+                        with open(file_path, "wb") as f:
+                            f.write(blob)
+                        # ... existing code ...
+
+                        # URL 생성 (base_url 지정된 경우)
+                        if base_url:
+                            rel_dir = os.path.basename(os.path.dirname(file_path))
+                            file_name = os.path.basename(file_path)
+                            image_url = f"{base_url.rstrip('/')}/{rel_dir}/{file_name}"
+                            md_content += f"\n![{alt_text}]({image_url})\n"
+                    else:
+                        # base64 인코딩
                         blob = shape.image.blob
                         content_type = shape.image.content_type or "image/png"
                         b64_string = base64.b64encode(blob).decode("utf-8")
                         md_content += f"\n![{alt_text}](data:{content_type};base64,{b64_string})\n"
-                    else:
-                        # A placeholder name
-                        filename = re.sub(r"\W", "", shape.name) + ".jpg"
-                        md_content += "\n![" + alt_text + "](" + filename + ")\n"
 
                 # Tables
                 if self._is_table(shape):
