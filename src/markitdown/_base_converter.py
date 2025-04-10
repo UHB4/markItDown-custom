@@ -11,6 +11,7 @@ class DocumentConverterResult:
     def __init__(
         self,
         markdown: str,
+        images: list = None,
         *,
         title: Optional[str] = None,
     ):
@@ -26,6 +27,7 @@ class DocumentConverterResult:
         """
         self.markdown = markdown
         self.title = title
+        self.images = images or []
 
     @property
     def text_content(self) -> str:
